@@ -35,8 +35,63 @@ function upei_roblib_citeproc_convert_mods_to_citeproc_jsons_alter(&$output, $mo
   if($output['number-pmid'] == NULL) {
     $output['number-nihmsid'] = convert_mods_to_citeproc_json_query($mods, '/mods:mods/mods:identifier[@type="nihmsid"] | /mods:mods/mods:identifier[@type="mid"]');
   }
+  // container-title from scholar citeproc does not get the subtitle so we try again here.
+  $output['container-title'] = upei_roblib_citeproc_mods_to_citeproc_json_title($mods, "/mods:mods[$parented]/mods:relatedItem[@type='host']/mods:titleInfo/mods:title");
+  // Not sure about this below, it fixed one edge case but may cause issues?
+  if(empty($output['container-title'])){
+    $output['container-title'] = $output['collection-title'];
+  }
+  // We check for part in both mods and mods:relatedItem if it is missing (marc21slim puts it in relatedItem)
+  if($output['volume'] == NULL) {
+    $output['volume'] = (int) convert_mods_to_citeproc_json_query($mods, '//mods:part/mods:detail[@type="volume"]/mods:number');
+  }
+  if($output['issue'] == NULL) {
+    $output['issue'] = (int) convert_mods_to_citeproc_json_query($mods, '//mods:part/mods:detail[@type="issue"]/mods:number');
+  }
+
 }
 
+
+/**
+ * Gets the title property for the Citation.
+ *
+ * by passing in the xpath we can use this for container titles as well.
+ *
+ * There may be multiple titles, and relying on the title[@type] is not a wholly
+ * reliable method of determining the best title.  MOST OFTEN THERE WILL ONLY BE ONE.
+ *
+ * @param SimpleXMLElement $mods
+ *   A MODS document.
+ *
+ * @return string
+ *   The title property for the Citation.
+ */
+function upei_roblib_citeproc_mods_to_citeproc_json_title(SimpleXMLElement $mods, $xpath = "/mods:mods/mods:titleInfo/mods:title") {
+  $output = '';
+  add_mods_namespace($mods);
+  $titles = $mods->xpath($xpath);
+
+  if (!empty($titles)) {
+    while (list($num, $node) = each($titles)) {
+      add_mods_namespace($node);
+      $title = (string) $node;
+      $subtitle = convert_mods_to_citeproc_json_query($node, '../mods:subTitle');
+      $nonSort = convert_mods_to_citeproc_json_query($node, '../mods:nonSort');
+      $title = !empty($subtitle) ? "$title: $subtitle" : $title;
+      $title = !empty($nonSort) ? "$nonSort $title" : $title;
+      $output = strlen($title) > strlen($output) ? $title : $output; // Choose the longest title.
+    }
+  }
+  return !empty($output) ? $output : NULL;
+}
+
+/**
+ * Converts our local types that mostly came from refworks to CSL types.
+ *
+ * @param SimpleXML $mods
+ * @return string
+ *   The CSL type.
+ */
 function upei_roblib_citeproc_local_to_csl_type($mods) {
   $genre = $mods->xpath("//mods:mods[1]/mods:genre");
 
