@@ -29,10 +29,10 @@ function upei_roblib_citeproc_convert_mods_to_citeproc_jsons_alter(&$output, $mo
   if($output['number-pmid'] == NULL) {
     $output['number-pmd'] = convert_mods_to_citeproc_json_query($mods, '/mods:mods/mods:identifier[@type="pmid"] | /mods:mods/mods:identifier[@type="accession"]');
   }
-  if($output['number-pmid'] == NULL) {
+  if($output['number-pmcid'] == NULL) {
     $output['number-pmcid'] = convert_mods_to_citeproc_json_query($mods, '/mods:mods/mods:identifier[@type="pmcid"] | /mods:mods/mods:identifier[@type="pmc"]');
   }
-  if($output['number-pmid'] == NULL) {
+  if($output['number-nihmsid'] == NULL) {
     $output['number-nihmsid'] = convert_mods_to_citeproc_json_query($mods, '/mods:mods/mods:identifier[@type="nihmsid"] | /mods:mods/mods:identifier[@type="mid"]');
   }
   // container-title from scholar citeproc does not get the subtitle so we try again here.
