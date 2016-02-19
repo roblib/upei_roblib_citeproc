@@ -1,5 +1,6 @@
 name = UPEI Roblib citeproc alters
 description = Implements some citeproc alters to help handle edge cases
 package = Roblib
+dependencies[] = citeproc
 version = 7.x-dev
 core = 7.x
