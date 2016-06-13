@@ -114,9 +114,6 @@ function upei_roblib_citeproc_local_to_csl_type($mods) {
       return 'book';
     case 'conference proceedings':
       return 'paper-conference';
-    case 'dissertation/thesis':
-    case 'signature project':
-      return 'thesis';
     case 'web page':
       return 'webpage';
     default:
