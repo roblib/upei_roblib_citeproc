@@ -113,6 +113,7 @@ function upei_roblib_citeproc_local_to_csl_type($mods) {
     case 'book, whole':
       return 'book';
     case 'conference proceedings':
+    case 'conference abstract':
       return 'paper-conference';
     case 'web page':
       return 'webpage';
